@@ -1,0 +1,6 @@
+i loved the movie	positif
+i hated the movie	negatif
+a great movie. good movie	positif
+poor acting	negatif
+great acting. a good movie	positif
+
