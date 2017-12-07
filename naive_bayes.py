@@ -1,4 +1,6 @@
 import operator
+import math
+from functools import reduce
 from string import punctuation
 from pprint import pprint
 
@@ -86,13 +88,16 @@ class NaiveBayes:
         hasil = {}
         for i in self.classes:
             result = self.prior[i]
+            temp = []
             for j in words:
                 if j in self.likelihood:
-                    result *= self.likelihood[j][i]
+                    temp.append(math.log(self.likelihood[j][i]))
                 else:
-                    result *= 1 / (self.n_words[i] + len(self.vocabulary) + 1)
+                    temp.append(math.log(1 / (self.n_words[i] + len(self.vocabulary) + 1)))
 
-            hasil[i] = result
+            hasil[i] = math.log(result) + reduce(lambda x,y: x+y, temp)
+
+
 
         hasil['label'] = max(hasil.items(), key=operator.itemgetter(1))[0]
         hasil['sentence'] = sentence
@@ -103,5 +108,5 @@ if __name__ == '__main__':
     naivebayes = NaiveBayes()
     dataset = naivebayes.open_dataset('tweets_train.txt')
     naivebayes.train(dataset)
-    result = naivebayes.predict('damn, i hate you')
+    result = naivebayes.predict('good movie')
     pprint(result)
