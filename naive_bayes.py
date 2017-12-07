@@ -47,7 +47,8 @@ class NaiveBayes:
             for j in i[0]:
                 try:
                     if j not in self.words:
-                        self.words[j] = dict((kelas, 0) for kelas in self.classes)
+                        self.words[j] = dict(
+                            (kelas, 0) for kelas in self.classes)
                         self.words[j][i[1]] += 1
                     else:
                         self.words[j][i[1]] += 1
@@ -88,6 +89,8 @@ class NaiveBayes:
             for j in words:
                 if j in self.likelihood:
                     result *= self.likelihood[j][i]
+                else:
+                    result *= 1 / (self.n_words[i] + len(self.vocabulary) + 1)
 
             hasil[i] = result
 
@@ -100,5 +103,5 @@ if __name__ == '__main__':
     naivebayes = NaiveBayes()
     dataset = naivebayes.open_dataset('tweets_train.txt')
     naivebayes.train(dataset)
-    result = naivebayes.predict('amazing spiderman is sucks .. !!')
+    result = naivebayes.predict('damn, i hate you')
     pprint(result)
