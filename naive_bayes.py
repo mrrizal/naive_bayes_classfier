@@ -26,7 +26,7 @@ class NaiveBayes:
                 continue
 
         for i in self.prior:
-            self.prior[i] = self.prior[i] / n
+            self.prior[i] = math.log(self.prior[i] / n)
 
         self.classes = list(self.prior.keys())
 
@@ -67,8 +67,9 @@ class NaiveBayes:
             key = i[0]
             temp = {}
             for j in i[1].items():
-                temp[j[0]] = (j[1] + 1) / (
-                    self.n_words[j[0]] + len(self.vocabulary))
+                temp[j[0]] = math.log(
+                    (j[1] + 1) / (self.n_words[j[0]] + len(self.vocabulary)))
+
             self.likelihood[key] = temp
 
     def train(self, dataset):
@@ -78,7 +79,7 @@ class NaiveBayes:
         self.hit_likelihood()
 
     def split_dataset(self, dataset):
-        hitung = int(80 / 100 * len(dataset))
+        hitung = int(75 / 100 * len(dataset))
         return dataset[0:hitung], dataset[hitung:]
 
     def predict(self, sentence):
@@ -86,16 +87,13 @@ class NaiveBayes:
         hasil = {}
         for i in self.classes:
             result = self.prior[i]
-            temp = []
             for j in words:
                 if j in self.likelihood:
-                    temp.append(math.log(self.likelihood[j][i]))
-                else:
-                    temp.append(
-                        math.log(1 /
-                                 (self.n_words[i] + len(self.vocabulary) + 1)))
+                    result += self.likelihood[j][i]
+                # else:
+                #     result += math.log(1 / (self.n_words[i] + len(self.vocabulary) + 1))
 
-            hasil[i] = math.log(result) + reduce(lambda x, y: x + y, temp)
+            hasil[i] = result
 
         hasil['label'] = max(hasil.items(), key=operator.itemgetter(1))[0]
         hasil['sentence'] = sentence
@@ -128,7 +126,7 @@ if __name__ == '__main__':
         "Jerusalem isn't the capital of Israel!! Fuck you the fucking American!! #SavePalestine #KamiBersamaPalestina #doakamiuntukpalestina",
         "to all my muslim family. may Allah always bless wherever you are . #SavePalestine #pleasekeeppraying",
         "May allah punish you for what you’ve done trump #SavePalestine",
-        "You do wrong thing Trump , you will get bad consequence !! #savepalestine #jerrussalamiscapitalpalestine"
+        "You do wrong thing Trump, you will get bad consequence !! #savepalestine #jerrussalamiscapitalpalestine"
     ]
 
     for i in mystring:
