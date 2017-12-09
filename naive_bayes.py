@@ -26,7 +26,7 @@ class NaiveBayes:
                 continue
 
         for i in self.prior:
-            self.prior[i] = math.log(self.prior[i] / n)
+            self.prior[i] = self.prior[i] / n
 
         self.classes = list(self.prior.keys())
 
@@ -67,8 +67,8 @@ class NaiveBayes:
             key = i[0]
             temp = {}
             for j in i[1].items():
-                temp[j[0]] = math.log(
-                    (j[1] + 1) / (self.n_words[j[0]] + len(self.vocabulary)))
+                temp[j[0]] = (j[1] + 1) / (
+                    self.n_words[j[0]] + len(self.vocabulary))
 
             self.likelihood[key] = temp
 
@@ -82,6 +82,12 @@ class NaiveBayes:
         hitung = int(75 / 100 * len(dataset))
         return dataset[0:hitung], dataset[hitung:]
 
+    def hitung_denominator(self, result):
+        denominator = 0
+        for i in self.classes:
+            denominator += result[i]
+        return denominator
+
     def predict(self, sentence):
         words = sentence.lower().split()
         hasil = {}
@@ -89,14 +95,20 @@ class NaiveBayes:
             result = self.prior[i]
             for j in words:
                 if j in self.likelihood:
-                    result += self.likelihood[j][i]
+                    result *= self.likelihood[j][i]
                 # else:
                 #     result += math.log(1 / (self.n_words[i] + len(self.vocabulary) + 1))
 
             hasil[i] = result
 
         hasil['label'] = max(hasil.items(), key=operator.itemgetter(1))[0]
+
+        denominator = self.hitung_denominator(hasil)
+
+        for i in self.classes:
+            hasil[i] = hasil[i] / denominator
         hasil['sentence'] = sentence
+
         return hasil
 
     def hitung_akurasi(self, datatest):
